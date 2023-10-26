@@ -1,34 +1,126 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# example-percy-webdriverio
 
-## Getting Started
+Example app showing integration of [Percy](https://percy.io/) visual testing into WebDriverIO tests.
 
-First, run the development server:
+Based on the [TodoMVC](https://github.com/tastejs/todomvc) [VanillaJS](https://github.com/tastejs/todomvc/tree/master/examples/vanillajs)
+app, forked at commit
+[4e301c7014093505dcf6678c8f97a5e8dee2d250](https://github.com/tastejs/todomvc/tree/4e301c7014093505dcf6678c8f97a5e8dee2d250).
+
+## WebDriverIO Tutorial
+
+The tutorial assumes you're already familiar with JavaScript and
+[WebDriverIO](https://webdriver.io) and focuses on using it with Percy. You'll still
+be able to follow along if you're not familiar with WebDriverIO, but we won't
+spend time introducing WebDriverIO concepts.
+
+The tutorial also assumes you have [Node 12+ with
+npm](https://nodejs.org/en/download/) and
+[git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed.
+
+### Step 1
+
+Clone the example application and install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
+$ git clone git@github.com:percy/example-percy-webdriverio.git
+$ cd example-percy-webdriverio
+$ npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The example app and its tests will now be ready to go. You can explore the app
+by opening the
+[`index.html`](https://github.com/percy/example-percy-webdriverio/blob/master/index.html)
+file in a browser.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+### Step 2
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Sign in to Percy and create a new project. You can name the project "todo" if you'd like. After
+you've created the project, you'll be shown a token environment variable.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Step 3
 
-## Learn More
+In the shell window you're working in, export the token environment variable:
 
-To learn more about Next.js, take a look at the following resources:
+**Unix**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+``` shell
+$ export PERCY_TOKEN="<your token here>"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+**Windows**
 
-## Deploy on Vercel
+``` shell
+$ set PERCY_TOKEN="<your token here>"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# PowerShell
+$ $Env:PERCY_TOKEN="<your token here>"
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Note: Usually this would only be set up in your CI environment, but to keep things simple we'll
+configure it in your shell so that Percy is enabled in your local environment.
+
+### Step 4
+
+Check out a new branch for your work in this tutorial (we'll call this branch
+`tutorial-example`), then run tests & take snapshots:
+
+``` shell
+$ git checkout -b tutorial-example
+$ npm run test
+```
+
+This will run the app's WebDriverIO tests, which contain calls to create Percy snapshots. The snapshots
+will then be uploaded to Percy for comparison. Percy will use the Percy token you used in **Step 2**
+to know which organization and project to upload the snapshots to.
+
+You can view the screenshots in Percy now if you want, but there will be no visual comparisons
+yet. You'll see that Percy shows you that these snapshots come from your `tutorial-example` branch.
+
+### Step 5
+
+Use your text editor to edit `index.html` and introduce some visual changes. For example, you can
+add inline CSS to bold the "Clear completed" button on line 32. After the change, that line looks
+like this:
+
+``` html
+<button class="clear-completed" style="font-weight:bold">Clear completed</button>
+```
+
+### Step 6
+
+Commit the change:
+
+``` shell
+$ git commit -am "Emphasize 'Clear completed' button"
+```
+
+### Step 7
+
+Run the tests with snapshots again:
+
+``` shell
+$ npm run test
+```
+
+This will run the tests again and take new snapshots of our modified application. The new snapshots
+will be uploaded to Percy and compared with the previous snapshots, showing any visual diffs.
+
+At the end of the test run output, you will see logs from Percy confirming that the snapshots were
+successfully uploaded and giving you a direct URL to check out any visual diffs.
+
+### Step 8
+
+Visit your project in Percy and you'll see a new build with the visual comparisons between the two
+runs. Click anywhere on the Build 2 row. You can see the original snapshots on the left, and the new
+snapshots on the right.
+
+Percy has highlighted what's changed visually in the app! Snapshots with the largest changes are
+shown first You can click on the highlight to reveal the underlying screenshot.
+
+If you scroll down, you'll see that no other test cases were impacted by our changes to the 'Clear
+completed' button. The unchanged snapshots appear grouped together at the bottom of the list.
+
+### Finished! 😀
+
+From here, you can try making your own changes to the app and tests, if you like. If you do, re-run
+the tests  and you'll see any visual changes reflected in Percy.
